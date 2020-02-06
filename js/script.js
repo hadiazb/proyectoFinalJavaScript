@@ -7,16 +7,17 @@ const ULTIMO_NIVEL = 10
 
 class Juego {
   constructor() {
+    this.inicializar = this.inicializar.bind(this)
     this.inicializar()
     this.generarSecuencia()
-    setTimeout(this.siguienteNivel, 1000)
+    setTimeout(this.siguienteNivel, 500)
   }
 
   inicializar() {
     this.siguienteNivel = this.siguienteNivel.bind(this)
     this.elegirColor = this.elegirColor.bind(this)
-    btnEmpezar.classList.add('hide')
-    this.nivel = 7
+    this.toggleBtnEmpezar()
+    this.nivel = 1
     this.colores = {
       celeste,
       violeta,
@@ -24,6 +25,15 @@ class Juego {
       verde
     }
   }
+
+  toggleBtnEmpezar(){
+    if (btnEmpezar.classList.contains('hide')) {
+      btnEmpezar.classList.remove('hide')
+    }else {
+      btnEmpezar.classList.add('hide')
+    }
+  }
+
   generarSecuencia(){
     this.secuencia = new Array(ULTIMO_NIVEL).fill(0).map(n => Math.floor(Math.random() * 4))
   }
@@ -64,13 +74,13 @@ class Juego {
   iluminarSecuencia(){
     for (var i= 0; i < this.nivel; i++){
       const color = this.transformarNumeroAColor(this.secuencia[i])
-      setTimeout(() => this.ilumunarColor(color), 1000 * i)
+      setTimeout(() => this.iluminarColor(color), 2000 * i)
     }
   }
 
-  ilumunarColor(color){
+  iluminarColor(color){
     this.colores[color].classList.add('light')
-    setTimeout(() => this.apagarColor(color), 350)
+    setTimeout(() => this.apagarColor(color), 800)
   }
 
   apagarColor(color){
@@ -94,23 +104,34 @@ class Juego {
   elegirColor(ev){
     const nombreColor = ev.target.dataset.color
     const numeroColor = this.transformarColorNumero(nombreColor)
-    this.ilumunarColor(nombreColor)
+    this.iluminarColor(nombreColor)
     if (numeroColor === this.secuencia[this.subnivel]) {
       this.subnivel++
       if (this.subnivel === this.nivel) {
         this.nivel++
         this.eliminarEventosClick()
         if (this.nivel === (ULTIMO_NIVEL + 1)) {
-          // Gano
+          this.ganoElJuego()
         }else {
           setTimeout(this.siguienteNivel, 1500)
         }
       }
     }else {
-      // Perdio
+      this.perdioElJuego()
     }
   }
+  ganoElJuego(){
+    swal('Jugaton', 'Ganaste!!!', 'success')
+    .then(this.inicializar)
+  }
 
+  perdioElJuego(){
+    swal('Jugaton', 'Perdiste!!! :(', 'error')
+    .then(() => {
+      this.eliminarEventosClick()
+      this.inicializar()
+    })
+  }
 }
 
 function empezarJuego() {
